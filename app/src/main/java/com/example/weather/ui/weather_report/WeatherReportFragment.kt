@@ -16,7 +16,9 @@ import com.example.weather.models.WeatherReport
 import com.example.weather.utils.Constants.BUNDLE_WEATHER
 import com.example.weather.utils.Constants.UNIT_METRIC
 import com.example.weather.utils.Resource
+import com.example.weather.utils.Tools.checkInternet
 import com.example.weather.utils.Tools.getLastKnownLocation
+import com.example.weather.utils.Tools.isInternetAvailable
 import com.example.weather.utils.Tools.isLocationEnabled
 import com.example.weather.utils.Tools.localToGMT
 import com.google.android.material.color.MaterialColors
@@ -127,7 +129,10 @@ class WeatherReportFragment :
                     is Resource.Success -> {
 
                         it.data?.let { report -> setWeatherReport(report) }
-                        binding.ivSave.performClick()
+                        if (context?.isInternetAvailable() == true){
+                            binding.ivSave.performClick()
+                        }
+
                     }
                     is Resource.Error -> {
                         showErrorMessage(it.message)

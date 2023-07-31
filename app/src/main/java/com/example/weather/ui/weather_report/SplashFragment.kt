@@ -28,58 +28,53 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
     private val viewModel by viewModels<WeatherReportViewModel>()
 
 
+
+
     override fun initView() {
         requestLocationPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+
     }
 
 
     override fun initListener() {
 
         binding.ivRetry.setOnClickListener {
-
-            requestLocationPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
             val location = context?.getLastKnownLocation()
-            if (location != null) {
-                viewModel.getWeatherReport(
-                    location.latitude.toString(),
-                    location.longitude.toString(),
-                    UNIT_METRIC
-                )
-            } else {
-                val intent = Intent(requireContext(), MainActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                startActivity(intent)
-                requireActivity().finishAffinity()
+            if (location != null){
+                viewModel.getWeatherReport(location.latitude.toString(), location.longitude.toString(), UNIT_METRIC)
+            }else {
+                showMessage("Wait for 5 seconds while things get ready")
+//                           val intent = Intent(requireContext(), MainActivity::class.java)
+//                           intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//                           startActivity(intent)
+//                           requireActivity().finish()
             }
+
 
         }
 
     }
 
     override fun addObserver() {
-        viewModel.weatherReportLiveData.observe(viewLifecycleOwner) {
-            if (it != null) {
+        viewModel.weatherReportLiveData.observe(viewLifecycleOwner){
+            if (it != null){
 
                 binding.pb.isVisible = it is Resource.Loading
-                when (it) {
+                when(it){
 
                     is Resource.Loading -> {
                         binding.ivRetry.isVisible = false
                     }
 
                     is Resource.Success -> {
-                        navigate(
-                            R.id.action_splashFragment_to_weatherReportFragment,
-                            Bundle().apply {
-                                putString(BUNDLE_WEATHER, it.data?.convertToJsonString())
-                            })
+                        navigate(R.id.action_splashFragment_to_weatherReportFragment, Bundle().apply {
+                            putString(BUNDLE_WEATHER, it.data?.convertToJsonString())
+                        })
                     }
-
                     is Resource.Error -> {
                         binding.ivRetry.isVisible = true
                         showErrorMessage(it.message)
                     }
-
                     else -> {}
                 }
             }
@@ -94,13 +89,13 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
             if (it?.get(Manifest.permission.ACCESS_FINE_LOCATION) == true) {
 
                 //Start the location listener.
-                when (val parentActivity = activity) {
+                when(val parentActivity = activity){
                     is MainActivity -> {
                         parentActivity.startLocationMonitoring()
                     }
                 }
 
-                if (context?.isLocationEnabled() == false) {
+                if (context?.isLocationEnabled() == false){
                     requireActivity().startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                     showErrorMessage("Please turn on location.")
                     binding.ivRetry.isVisible = true
@@ -108,27 +103,23 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
 
                 }
 
-                if (context?.isInternetAvailable() == false) {
+                if (context?.isInternetAvailable() == false){
                     viewModel.getLatestReport()
                     return@registerForActivityResult
                 }
-                val location = context?.getLastKnownLocation()
-                if (location != null) {
-                    viewModel.getWeatherReport(
-                        location.latitude.toString(),
-                        location.longitude.toString(),
-                        UNIT_METRIC
-                    )
-                } else {
+               val location = context?.getLastKnownLocation()
+                       if (location != null){
+                           viewModel.getWeatherReport(location.latitude.toString(), location.longitude.toString(), UNIT_METRIC)
+                       }else {
 
-                    // Handle positive button click if needed
-                    binding.ivRetry.isVisible = true
-                    showErrorMessage("Unable to get the location, try again later.")
+                           // Handle positive button click if needed
+                            binding.ivRetry.isVisible = true
+                           showErrorMessage("Unable to get the location, try again later.")
 //                           val intent = Intent(requireContext(), MainActivity::class.java)
 //                           intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 //                           startActivity(intent)
 //                           requireActivity().finish()
-                }
+                       }
 
 
             } else {

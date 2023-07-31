@@ -128,6 +128,10 @@ abstract class BaseFragment<VB : ViewBinding>(private val bindingInflater: (infl
         Toast.makeText(context, message, duration).show()
     }
 
+    fun showMessage(message: String?) {
+        Toast.makeText(context, message,Toast.LENGTH_SHORT).show()
+    }
+
     fun showSuccessMessage(message: String?, duration: Int = Toast.LENGTH_SHORT) {
         Toast.makeText(context, message, duration).show()
     }
