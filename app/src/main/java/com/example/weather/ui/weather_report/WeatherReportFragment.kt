@@ -146,7 +146,7 @@ class WeatherReportFragment :
                         binding.cvReport.isVisible = !it.data.isNullOrEmpty()
 
                         if (!it.data.isNullOrEmpty()){
-                            adapter.submitList(it.data.toMutableList())
+                            adapter.submitList(it.data.toMutableList().asReversed())
                         }
 
                     }

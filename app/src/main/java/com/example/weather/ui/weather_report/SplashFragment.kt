@@ -2,19 +2,15 @@ package com.example.weather.ui.weather_report
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.example.weather.R
 import com.example.weather.core.BaseFragment
 import com.example.weather.databinding.FragmentSplashBinding
-import com.example.weather.models.Main
 import com.example.weather.ui.MainActivity
 import com.example.weather.utils.Constants.BUNDLE_WEATHER
 import com.example.weather.utils.Constants.UNIT_METRIC
@@ -42,6 +38,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
 
         binding.ivRetry.setOnClickListener {
             requestLocationPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+
         }
 
     }
@@ -87,9 +84,11 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
                 }
 
                 if (context?.isLocationEnabled() == false){
+                    requireActivity().startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                     showErrorMessage("Please turn on location.")
                     binding.ivRetry.isVisible = true
                     return@registerForActivityResult
+
                 }
 
                 if (context?.isInternetAvailable() == false){
@@ -100,8 +99,14 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
                        if (location != null){
                            viewModel.getWeatherReport(location.latitude.toString(), location.longitude.toString(), UNIT_METRIC)
                        }else {
-                           binding.ivRetry.isVisible = true
+
+                           // Handle positive button click if needed
+                            binding.ivRetry.isVisible = true
                            showErrorMessage("Unable to get the location, try again later.")
+                           val intent = Intent(requireContext(), MainActivity::class.java)
+                           intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                           startActivity(intent)
+                           requireActivity().finish()
                        }
 
 
